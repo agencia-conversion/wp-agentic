@@ -5,7 +5,7 @@
  * @package WP_Agentic
  */
 
-if ( ! defined( 'ABSPATH' ) && ! defined( 'WP_AGENTIC_TESTING' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -116,7 +116,7 @@ class WP_Agentic_Markdown {
 		$title       = get_the_title( $post );
 		$url         = get_permalink( $post );
 		$description = has_excerpt( $post ) ? get_the_excerpt( $post ) : wp_trim_words( self::plain_text( preg_replace( '#<[^>]+>#', ' ', $post->post_content ) ), 40 );
-		$content     = apply_filters( 'the_content', $post->post_content );
+		$content     = apply_filters( 'the_content', $post->post_content ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Applying the core content filter is intentional.
 		$frontmatter = self::frontmatter(
 			array(
 				'title'          => self::plain_text( $title ),
@@ -183,7 +183,8 @@ class WP_Agentic_Markdown {
 			return false;
 		}
 
-		if ( preg_match( '#/(robots\.txt|llms\.txt)$#i', parse_url( $uri, PHP_URL_PATH ) ?: '' ) ) {
+		$path = wp_parse_url( $uri, PHP_URL_PATH );
+		if ( preg_match( '#/(robots\.txt|llms\.txt)$#i', $path ?: '' ) ) {
 			return false;
 		}
 
@@ -276,7 +277,7 @@ class WP_Agentic_Markdown {
 	 */
 	private static function send_markdown( $markdown ) {
 		if ( function_exists( 'do_action' ) ) {
-			do_action( 'litespeed_control_set_nocache', 'wp-agentic-markdown' );
+				do_action( 'litespeed_control_set_nocache', 'wp-agentic-markdown' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed exposes this third-party cache hook.
 		}
 
 		nocache_headers();

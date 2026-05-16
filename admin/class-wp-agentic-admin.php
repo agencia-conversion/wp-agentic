@@ -5,7 +5,7 @@
  * @package WP_Agentic
  */
 
-if ( ! defined( 'ABSPATH' ) && ! defined( 'WP_AGENTIC_TESTING' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 

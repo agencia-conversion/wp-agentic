@@ -5,7 +5,7 @@
  * @package WP_Agentic
  */
 
-if ( ! defined( 'ABSPATH' ) && ! defined( 'WP_AGENTIC_TESTING' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -155,7 +155,20 @@ class WP_Agentic_Settings {
 	private static function sanitize_text( $value ) {
 		$value = (string) $value;
 
-		return function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $value ) : trim( strip_tags( $value ) );
+		return function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $value ) : self::fallback_strip_tags( $value );
+	}
+
+	/**
+	 * Strip HTML tags when WordPress is unavailable in isolated tests.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private static function fallback_strip_tags( $value ) {
+		$value = preg_replace( '#<(script|style)\b[^>]*>.*?</\1>#is', '', $value );
+		$value = preg_replace( '#<[^>]*>#', '', (string) $value );
+
+		return trim( (string) $value );
 	}
 
 	/**

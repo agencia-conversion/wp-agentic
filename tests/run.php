@@ -1,6 +1,7 @@
 <?php
 define( 'WP_AGENTIC_TESTING', true );
 define( 'WP_AGENTIC_VERSION', '0.1.2' );
+define( 'ABSPATH', __DIR__ . '/' );
 
 function wp_strip_all_tags( $text ) {
 	return strip_tags( $text );
@@ -36,6 +37,10 @@ function esc_html( $text ) {
 
 function trailingslashit( $string ) {
 	return rtrim( $string, '/' ) . '/';
+}
+
+function wp_parse_url( $url, $component = -1 ) {
+	return parse_url( $url, $component );
 }
 
 function has_action( $hook ) {

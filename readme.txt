@@ -2,7 +2,7 @@
 Contributors: conversion
 Tags: ai, agents, markdown, llms.txt, robots.txt
 Requires at least: 5.9
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 0.1.2
 License: GPLv2 or later

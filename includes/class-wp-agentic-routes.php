@@ -5,7 +5,7 @@
  * @package WP_Agentic
  */
 
-if ( ! defined( 'ABSPATH' ) && ! defined( 'WP_AGENTIC_TESTING' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -495,7 +495,20 @@ class WP_Agentic_Routes {
 	private static function clean_text( $text ) {
 		$text = (string) $text;
 
-		return function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $text ) : trim( strip_tags( $text ) );
+		return function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $text ) : self::fallback_strip_tags( $text );
+	}
+
+	/**
+	 * Strip HTML tags when WordPress is unavailable in isolated tests.
+	 *
+	 * @param string $text Raw text.
+	 * @return string
+	 */
+	private static function fallback_strip_tags( $text ) {
+		$text = preg_replace( '#<(script|style)\b[^>]*>.*?</\1>#is', '', (string) $text );
+		$text = preg_replace( '#<[^>]*>#', '', (string) $text );
+
+		return trim( (string) $text );
 	}
 
 	/**
