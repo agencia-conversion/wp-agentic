@@ -3,6 +3,7 @@
 .distignore
 .github
 dist
+production-backups
 tests
 tools
 docker-compose.yml
