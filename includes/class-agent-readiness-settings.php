@@ -2,7 +2,7 @@
 /**
  * Settings model and sanitization.
  *
- * @package WP_Agentic
+ * @package Agent_Readiness
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Stores defaults and sanitizes persisted settings.
  */
-class WP_Agentic_Settings {
+class Agent_Readiness_Settings {
 	const OPTION_NAME = 'wp_agentic_settings';
 
 	/**

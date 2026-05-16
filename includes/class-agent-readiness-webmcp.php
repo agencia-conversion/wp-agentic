@@ -2,7 +2,7 @@
 /**
  * Browser-side WebMCP tool registration.
  *
- * @package WP_Agentic
+ * @package Agent_Readiness
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Registers read-only tools for browsers that expose navigator.modelContext.
  */
-class WP_Agentic_WebMCP {
+class Agent_Readiness_WebMCP {
 	/**
 	 * Register hooks.
 	 *
@@ -28,26 +28,26 @@ class WP_Agentic_WebMCP {
 	 * @return void
 	 */
 	public static function render_script() {
-		if ( ! WP_Agentic_Settings::enabled() || is_admin() || is_feed() || is_robots() || is_embed() ) {
+		if ( ! Agent_Readiness_Settings::enabled() || is_admin() || is_feed() || is_robots() || is_embed() ) {
 			return;
 		}
 
-		$settings = WP_Agentic_Settings::get();
+		$settings = Agent_Readiness_Settings::get();
 		if ( empty( $settings['enable_webmcp'] ) ) {
 			return;
 		}
 
 		$config = array(
 			'endpoints' => array(
-				'search'  => esc_url_raw( rest_url( 'wp-agentic/v1/search' ) ),
-				'content' => esc_url_raw( rest_url( 'wp-agentic/v1/content' ) ),
-				'recent'  => esc_url_raw( rest_url( 'wp-agentic/v1/recent' ) ),
-				'context' => esc_url_raw( rest_url( 'wp-agentic/v1/context' ) ),
-				'contact' => esc_url_raw( rest_url( 'wp-agentic/v1/contact' ) ),
+				'search'  => esc_url_raw( rest_url( 'agent-readiness/v1/search' ) ),
+				'content' => esc_url_raw( rest_url( 'agent-readiness/v1/content' ) ),
+				'recent'  => esc_url_raw( rest_url( 'agent-readiness/v1/recent' ) ),
+				'context' => esc_url_raw( rest_url( 'agent-readiness/v1/context' ) ),
+				'contact' => esc_url_raw( rest_url( 'agent-readiness/v1/contact' ) ),
 			),
 		);
 		?>
-<script id="wp-agentic-webmcp">
+<script id="agent-readiness-webmcp">
 (function () {
   var modelContext = navigator.modelContext;
   if (!modelContext) {

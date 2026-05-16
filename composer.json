@@ -1,6 +1,6 @@
 {
-  "name": "conversion/wp-agentic",
-  "version": "0.1.2",
+  "name": "conversion/agent-readiness",
+  "version": "0.1.3",
   "description": "Agent readiness for WordPress: Markdown negotiation, llms.txt, API catalog, agent skills, and AI content signals.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",

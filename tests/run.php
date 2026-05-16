@@ -1,6 +1,7 @@
 <?php
 define( 'WP_AGENTIC_TESTING', true );
-define( 'WP_AGENTIC_VERSION', '0.1.2' );
+define( 'AGENT_READINESS_VERSION', '0.1.3' );
+define( 'AGENT_READINESS_URL', 'https://example.com/wp-content/plugins/agent-readiness/' );
 define( 'ABSPATH', __DIR__ . '/' );
 
 function wp_strip_all_tags( $text ) {
@@ -64,6 +65,10 @@ function esc_attr( $text ) {
 	return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
 }
 
+function esc_attr_e( $text, $domain = 'default' ) {
+	echo esc_attr( __( $text, $domain ) );
+}
+
 function esc_url( $url ) {
 	return filter_var( $url, FILTER_SANITIZE_URL );
 }
@@ -112,10 +117,10 @@ function get_post_types( $args = array(), $output = 'names' ) {
 	return array( 'post', 'page' );
 }
 
-require_once __DIR__ . '/../includes/class-wp-agentic-settings.php';
-require_once __DIR__ . '/../includes/class-wp-agentic-markdown.php';
-require_once __DIR__ . '/../includes/class-wp-agentic-routes.php';
-require_once __DIR__ . '/../admin/class-wp-agentic-admin.php';
+require_once __DIR__ . '/../includes/class-agent-readiness-settings.php';
+require_once __DIR__ . '/../includes/class-agent-readiness-markdown.php';
+require_once __DIR__ . '/../includes/class-agent-readiness-routes.php';
+require_once __DIR__ . '/../admin/class-agent-readiness-admin.php';
 
 $failures = 0;
 
@@ -130,7 +135,7 @@ function assert_true( $condition, $message ) {
 	echo "PASS: {$message}\n";
 }
 
-$settings = WP_Agentic_Settings::sanitize(
+$settings = Agent_Readiness_Settings::sanitize(
 	array(
 		'publisher_name'          => '<b>Conversion</b>',
 		'publisher_url'           => 'https://www.conversion.com.br/',
@@ -143,41 +148,44 @@ $settings = WP_Agentic_Settings::sanitize(
 );
 
 assert_true( 'Conversion' === $settings['publisher_name'], 'settings sanitize publisher name' );
-assert_true( 'ai-train=yes, search=yes, ai-input=yes' === WP_Agentic_Settings::content_signal_value( $settings ), 'content signal value' );
-assert_true( in_array( 'post', WP_Agentic_Settings::exposed_post_types( $settings ), true ), 'settings expose posts by default' );
+assert_true( 'ai-train=yes, search=yes, ai-input=yes' === Agent_Readiness_Settings::content_signal_value( $settings ), 'content signal value' );
+assert_true( in_array( 'post', Agent_Readiness_Settings::exposed_post_types( $settings ), true ), 'settings expose posts by default' );
 
-assert_true( WP_Agentic_Markdown::accepts_markdown( 'text/html, text/markdown;q=1' ), 'Accept header detects text/markdown' );
-assert_true( ! WP_Agentic_Markdown::accepts_markdown( 'text/html, application/json' ), 'Accept header rejects missing markdown' );
-assert_true( ! WP_Agentic_Markdown::accepts_markdown( 'text/markdown;q=0, text/html' ), 'Accept header rejects q=0' );
+assert_true( Agent_Readiness_Markdown::accepts_markdown( 'text/html, text/markdown;q=1' ), 'Accept header detects text/markdown' );
+assert_true( ! Agent_Readiness_Markdown::accepts_markdown( 'text/html, application/json' ), 'Accept header rejects missing markdown' );
+assert_true( ! Agent_Readiness_Markdown::accepts_markdown( 'text/markdown;q=0, text/html' ), 'Accept header rejects q=0' );
 
-$markdown = WP_Agentic_Markdown::html_to_markdown( '<h1>Hello</h1><p>Read <a href="https://example.com/x">this</a>.</p><script>alert(1)</script>' );
+$markdown = Agent_Readiness_Markdown::html_to_markdown( '<h1>Hello</h1><p>Read <a href="https://example.com/x">this</a>.</p><script>alert(1)</script>' );
 assert_true( false !== strpos( $markdown, '# Hello' ), 'HTML h1 converts to Markdown heading' );
 assert_true( false !== strpos( $markdown, '[this](https://example.com/x)' ), 'HTML link converts to Markdown link' );
 assert_true( false === strpos( $markdown, 'alert' ), 'script content removed from Markdown' );
-assert_true( false === strpos( WP_Agentic_Markdown::html_to_markdown( '<nav>Menu</nav><p>Body</p>' ), 'Menu' ), 'navigation content removed from Markdown' );
+assert_true( false === strpos( Agent_Readiness_Markdown::html_to_markdown( '<nav>Menu</nav><p>Body</p>' ), 'Menu' ), 'navigation content removed from Markdown' );
 
-$catalog = WP_Agentic_Routes::api_catalog( $settings );
+$catalog = Agent_Readiness_Routes::api_catalog( $settings );
 assert_true( isset( $catalog['linkset'][0]['service-desc'][0]['href'] ), 'API catalog exposes service-desc' );
 assert_true( 'https://example.com/wp-json/' === $catalog['linkset'][0]['service-desc'][0]['href'], 'API catalog points to REST API' );
 
-$skills = WP_Agentic_Routes::agent_skills( $settings );
+$skills = Agent_Readiness_Routes::agent_skills( $settings );
 assert_true( 'https://schemas.agentskills.io/discovery/0.2.0/schema.json' === $skills['$schema'], 'agent skills exposes v0.2 schema' );
 assert_true( 5 === count( $skills['skills'] ), 'agent skills exposes five skills' );
 assert_true( 'read-site-content' === $skills['skills'][0]['name'], 'agent skills includes read-site-content' );
 assert_true( 0 === strpos( $skills['skills'][0]['digest'], 'sha256:' ), 'agent skills includes sha256 digest' );
 
-$skill_md = WP_Agentic_Routes::agent_skill_markdown( 'search-site', $settings );
+$skill_md = Agent_Readiness_Routes::agent_skill_markdown( 'search-site', $settings );
 assert_true( false !== strpos( $skill_md, 'name: search-site' ), 'SKILL.md includes frontmatter name' );
-assert_true( false !== strpos( $skill_md, 'wp-json/wp-agentic/v1/search' ), 'SKILL.md includes REST endpoint' );
+assert_true( false !== strpos( $skill_md, 'wp-json/agent-readiness/v1/search' ), 'SKILL.md includes REST endpoint' );
 
-$llms = WP_Agentic_Routes::llms_text( $settings );
+$llms = Agent_Readiness_Routes::llms_text( $settings );
 assert_true( false !== strpos( $llms, '## Agent resources' ), 'llms.txt includes agent resources' );
 assert_true( false !== strpos( $llms, 'Content-Signal: ai-train=yes, search=yes, ai-input=yes' ), 'llms.txt includes Content-Signal' );
 
 ob_start();
-WP_Agentic_Admin::render_page();
+Agent_Readiness_Admin::render_page();
 $admin_absent = ob_get_clean();
-assert_true( false !== strpos( $admin_absent, 'WP Agentic v0.1.2' ), 'admin footer exposes version' );
+assert_true( false !== strpos( $admin_absent, 'Agent Readiness v0.1.3' ), 'admin footer exposes version' );
+assert_true( false !== strpos( $admin_absent, 'assets/conversion-logo-white.svg' ), 'admin header includes Conversion logo for dark background' );
+assert_true( false !== strpos( $admin_absent, 'assets/conversion-logo.svg' ), 'admin footer includes Conversion logo for light background' );
+assert_true( false !== strpos( $admin_absent, 'https://conversion.ag/' ), 'admin credits Conversion agency URL' );
 assert_true( false !== strpos( $admin_absent, 'MCP Server Card' ), 'admin explains MCP Server Card boundary' );
 assert_true( false !== strpos( $admin_absent, 'Not detected' ), 'admin shows WPGraphQL absent state' );
 assert_true( false !== strpos( $admin_absent, 'https://wordpress.org/plugins/wp-graphql/' ), 'admin links to WPGraphQL plugin when absent' );
@@ -186,7 +194,7 @@ assert_true( false !== strpos( $admin_absent, 'wp_agentic_settings[enable_webmcp
 eval( 'class WPGraphQL {}' );
 
 ob_start();
-WP_Agentic_Admin::render_page();
+Agent_Readiness_Admin::render_page();
 $admin_present = ob_get_clean();
 assert_true( false !== strpos( $admin_present, 'https://example.com/graphql' ), 'admin shows WPGraphQL endpoint when active' );
 assert_true( false !== strpos( $admin_present, 'Advertise when active' ), 'admin preserves WPGraphQL advertise toggle' );

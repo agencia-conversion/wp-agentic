@@ -2,7 +2,7 @@
 /**
  * Markdown content negotiation.
  *
- * @package WP_Agentic
+ * @package Agent_Readiness
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,18 +12,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Serves public WordPress content as Markdown when requested.
  */
-class WP_Agentic_Markdown {
+class Agent_Readiness_Markdown {
 	/**
 	 * Maybe serve the current request as Markdown.
 	 *
 	 * @return void
 	 */
 	public static function maybe_serve_markdown() {
-		if ( ! WP_Agentic_Settings::enabled() ) {
+		if ( ! Agent_Readiness_Settings::enabled() ) {
 			return;
 		}
 
-		$settings = WP_Agentic_Settings::get();
+		$settings = Agent_Readiness_Settings::get();
 		if ( empty( $settings['enable_markdown'] ) || ! self::current_request_accepts_markdown() || ! self::is_allowed_request() ) {
 			return;
 		}
@@ -277,7 +277,7 @@ class WP_Agentic_Markdown {
 	 */
 	private static function send_markdown( $markdown ) {
 		if ( function_exists( 'do_action' ) ) {
-				do_action( 'litespeed_control_set_nocache', 'wp-agentic-markdown' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed exposes this third-party cache hook.
+				do_action( 'litespeed_control_set_nocache', 'agent-readiness-markdown' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed exposes this third-party cache hook.
 		}
 
 		nocache_headers();
@@ -285,8 +285,8 @@ class WP_Agentic_Markdown {
 		header( 'Content-Type: text/markdown; charset=UTF-8' );
 		header( 'Vary: Accept', false );
 		header( 'X-Markdown-Tokens: ' . self::estimate_tokens( $markdown ) );
-		header( 'X-WP-Agentic: 1' );
-		header( 'Content-Signal: ' . WP_Agentic_Settings::content_signal_value() );
+		header( 'X-Agent-Readiness: 1' );
+		header( 'Content-Signal: ' . Agent_Readiness_Settings::content_signal_value() );
 		echo $markdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
 	}

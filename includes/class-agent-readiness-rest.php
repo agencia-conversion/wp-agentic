@@ -2,7 +2,7 @@
 /**
  * Public read-only REST endpoints for agent tools.
  *
- * @package WP_Agentic
+ * @package Agent_Readiness
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Exposes safe public content APIs used by WebMCP tools.
  */
-class WP_Agentic_REST {
-	const NAMESPACE = 'wp-agentic/v1';
+class Agent_Readiness_REST {
+	const NAMESPACE = 'agent-readiness/v1';
 
 	/**
 	 * Register hooks.
@@ -119,7 +119,7 @@ class WP_Agentic_REST {
 		$query = (string) ( $request->get_param( 'query' ) ?: $request->get_param( 'search' ) );
 		$query = sanitize_text_field( $query );
 		if ( '' === $query ) {
-			return new WP_Error( 'wp_agentic_missing_query', __( 'Missing search query.', 'wp-agentic' ), array( 'status' => 400 ) );
+			return new WP_Error( 'wp_agentic_missing_query', __( 'Missing search query.', 'agent-readiness' ), array( 'status' => 400 ) );
 		}
 
 		$posts = self::query_posts(
@@ -150,7 +150,7 @@ class WP_Agentic_REST {
 
 		$post = self::resolve_post( $request );
 		if ( ! $post ) {
-			return new WP_Error( 'wp_agentic_not_found', __( 'Public content not found.', 'wp-agentic' ), array( 'status' => 404 ) );
+			return new WP_Error( 'wp_agentic_not_found', __( 'Public content not found.', 'agent-readiness' ), array( 'status' => 404 ) );
 		}
 
 		return rest_ensure_response( self::prepare_content( $post ) );
@@ -190,15 +190,15 @@ class WP_Agentic_REST {
 			return self::disabled_error();
 		}
 
-		$settings = WP_Agentic_Settings::get();
+		$settings = Agent_Readiness_Settings::get();
 
 		return rest_ensure_response(
 			array(
 				'name'            => sanitize_text_field( $settings['publisher_name'] ?? get_bloginfo( 'name' ) ),
 				'url'             => esc_url_raw( $settings['publisher_url'] ?? home_url( '/' ) ),
 				'contact_url'     => esc_url_raw( $settings['contact_url'] ?? home_url( 'contato/' ) ),
-				'content_signal'  => WP_Agentic_Settings::content_signal_value( $settings ),
-				'exposed_types'   => WP_Agentic_Settings::exposed_post_types( $settings ),
+				'content_signal'  => Agent_Readiness_Settings::content_signal_value( $settings ),
+				'exposed_types'   => Agent_Readiness_Settings::exposed_post_types( $settings ),
 				'agent_resources' => array(
 					'llms'         => home_url( 'llms.txt' ),
 					'api_catalog'  => home_url( '.well-known/api-catalog' ),
@@ -219,14 +219,14 @@ class WP_Agentic_REST {
 			return self::disabled_error();
 		}
 
-		$settings = WP_Agentic_Settings::get();
+		$settings = Agent_Readiness_Settings::get();
 
 		return rest_ensure_response(
 			array(
 				'contact_url'        => esc_url_raw( $settings['contact_url'] ?? home_url( 'contato/' ) ),
 				'human_confirmation' => true,
 				'actions'            => array(),
-				'note'               => 'Open the public contact page. WP Agentic does not submit forms automatically.',
+				'note'               => 'Open the public contact page. Agent Readiness does not submit forms automatically.',
 			)
 		);
 	}
@@ -237,11 +237,11 @@ class WP_Agentic_REST {
 	 * @return bool
 	 */
 	private static function available() {
-		if ( ! WP_Agentic_Settings::enabled() ) {
+		if ( ! Agent_Readiness_Settings::enabled() ) {
 			return false;
 		}
 
-		$settings = WP_Agentic_Settings::get();
+		$settings = Agent_Readiness_Settings::get();
 
 		return ! empty( $settings['enable_webmcp'] );
 	}
@@ -252,7 +252,7 @@ class WP_Agentic_REST {
 	 * @return WP_Error
 	 */
 	private static function disabled_error() {
-		return new WP_Error( 'wp_agentic_disabled', __( 'WP Agentic read tools are disabled.', 'wp-agentic' ), array( 'status' => 404 ) );
+		return new WP_Error( 'wp_agentic_disabled', __( 'Agent Readiness read tools are disabled.', 'agent-readiness' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -262,12 +262,12 @@ class WP_Agentic_REST {
 	 * @return array<int,WP_Post>
 	 */
 	private static function query_posts( $args ) {
-		$settings = WP_Agentic_Settings::get();
+		$settings = Agent_Readiness_Settings::get();
 		$query    = new WP_Query(
 			wp_parse_args(
 				$args,
 				array(
-					'post_type'           => WP_Agentic_Settings::exposed_post_types( $settings ),
+					'post_type'           => Agent_Readiness_Settings::exposed_post_types( $settings ),
 					'post_status'         => 'publish',
 					'ignore_sticky_posts' => true,
 					'no_found_rows'       => true,
@@ -287,8 +287,8 @@ class WP_Agentic_REST {
 	 * @return WP_Post|null
 	 */
 	private static function resolve_post( $request ) {
-		$settings      = WP_Agentic_Settings::get();
-		$allowed_types = WP_Agentic_Settings::exposed_post_types( $settings );
+		$settings      = Agent_Readiness_Settings::get();
+		$allowed_types = Agent_Readiness_Settings::exposed_post_types( $settings );
 		$id            = absint( $request->get_param( 'id' ) );
 
 		if ( $id > 0 ) {
@@ -367,7 +367,7 @@ class WP_Agentic_REST {
 		return array_merge(
 			self::prepare_summary( $post ),
 			array(
-				'markdown' => WP_Agentic_Markdown::markdown_for_post( $post ),
+				'markdown' => Agent_Readiness_Markdown::markdown_for_post( $post ),
 			)
 		);
 	}

@@ -2,7 +2,7 @@
 /**
  * Main plugin bootstrap.
  *
- * @package WP_Agentic
+ * @package Agent_Readiness
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Coordinates public routes, Markdown negotiation, and admin UI.
  */
-class WP_Agentic {
+class Agent_Readiness {
 	const VERSION_OPTION = 'wp_agentic_version';
 
 	/**
@@ -21,10 +21,10 @@ class WP_Agentic {
 	 * @return void
 	 */
 	public static function init() {
-		WP_Agentic_Routes::init();
-		WP_Agentic_REST::init();
-		WP_Agentic_WebMCP::init();
-		WP_Agentic_Admin::init();
+		Agent_Readiness_Routes::init();
+		Agent_Readiness_REST::init();
+		Agent_Readiness_WebMCP::init();
+		Agent_Readiness_Admin::init();
 		add_action( 'init', array( __CLASS__, 'maybe_upgrade' ), 20 );
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'maybe_flush_after_plugin_update' ), 10, 2 );
 	}
@@ -35,13 +35,13 @@ class WP_Agentic {
 	 * @return void
 	 */
 	public static function activate() {
-		if ( false === get_option( WP_Agentic_Settings::OPTION_NAME, false ) ) {
-			add_option( WP_Agentic_Settings::OPTION_NAME, WP_Agentic_Settings::defaults() );
+		if ( false === get_option( Agent_Readiness_Settings::OPTION_NAME, false ) ) {
+			add_option( Agent_Readiness_Settings::OPTION_NAME, Agent_Readiness_Settings::defaults() );
 		}
 
-		WP_Agentic_Routes::add_rewrite_rules();
+		Agent_Readiness_Routes::add_rewrite_rules();
 		flush_rewrite_rules();
-		update_option( self::VERSION_OPTION, WP_AGENTIC_VERSION );
+		update_option( self::VERSION_OPTION, AGENT_READINESS_VERSION );
 	}
 
 	/**
@@ -60,13 +60,13 @@ class WP_Agentic {
 	 */
 	public static function maybe_upgrade() {
 		$stored_version = get_option( self::VERSION_OPTION, '' );
-		if ( WP_AGENTIC_VERSION === $stored_version ) {
+		if ( AGENT_READINESS_VERSION === $stored_version ) {
 			return;
 		}
 
-		WP_Agentic_Routes::add_rewrite_rules();
+		Agent_Readiness_Routes::add_rewrite_rules();
 		flush_rewrite_rules();
-		update_option( self::VERSION_OPTION, WP_AGENTIC_VERSION );
+		update_option( self::VERSION_OPTION, AGENT_READINESS_VERSION );
 	}
 
 	/**
@@ -88,12 +88,12 @@ class WP_Agentic {
 			$plugins[] = $options['plugin'];
 		}
 
-		if ( ! in_array( plugin_basename( WP_AGENTIC_FILE ), $plugins, true ) ) {
+		if ( ! in_array( plugin_basename( AGENT_READINESS_FILE ), $plugins, true ) ) {
 			return;
 		}
 
-		WP_Agentic_Routes::add_rewrite_rules();
+		Agent_Readiness_Routes::add_rewrite_rules();
 		flush_rewrite_rules();
-		update_option( self::VERSION_OPTION, WP_AGENTIC_VERSION );
+		update_option( self::VERSION_OPTION, AGENT_READINESS_VERSION );
 	}
 }
